@@ -9,7 +9,7 @@ kPluginCmdName = "build"
 class buildingSection():
     idx = 0
     def __init__(self, dimension, roofSpec, position):
-        self.pos = [0, 0, 0]
+        self.pos = position
         self.dim = dimension
         self.roof = roofSpec
         self.idx = buildingSection.idx
@@ -17,13 +17,13 @@ class buildingSection():
 
     def build(self):
         cmds.polyCube(sx=5, sy=5, sz=5, w=self.dim[0], h=self.dim[1], d=self.dim[2], n='box'+str(self.idx))
-        cmds.move(0,self.dim[1]*0.5,0,r=1)
+        cmds.move(self.pos[0],self.dim[1]*0.5,self.pos[2],r=1)
         self.buildRoof()
         cmds.select(clear = True)
 
     def buildRoof(self):
         cmds.polyCube(w=self.dim[0], h=self.roof[1], d=self.dim[2], n = 'roof' + str(self.idx))
-        cmds.move(0, self.dim[1] + 0.5*self.roof[1], 0, r=1)
+        cmds.move(self.pos[0], self.dim[1] + 0.5*self.roof[1], self.pos[2], r=1)
         if(self.dim[2] < self.dim[0] ):
             cmds.select('roof' + str(self.idx) + '.vtx[2:3]')
             cmds.move(0, 0, -0.5 * self.dim[2], r=1)
@@ -50,7 +50,6 @@ class building():
         self.lawnZ      = 15
 
 
-
     def generateSection(self):
         #build the main section of the house
 
@@ -74,16 +73,45 @@ class building():
         #Create smaller subparts
         print("hej")
         self.newSectionProb = 1
-        self.maxSectionCount = 10
+        self.maxSectionCount = 1
 
         for a in range(0,self.maxSectionCount):
             #print("johanss")
             self.randomInt = random.randint(0,100)
             self.createSection = self.newSectionProb * self.randomInt/40
-            if self.createSection >= 0.5:
-                print("Created subpart")
-                self.sections.append( buildingSection([1, 1, 1], [2, 1], [0,0,0]) )
-                self.newSectionProb = self.newSectionProb - self.maxSectionCount/(self.maxSectionCount*self.maxSectionCount)
+            # if self.createSection >= 0.5:
+            print("Created subpart")
+
+            main = self.sections[0]
+            mainX = main.dim[0]
+            mainY = main.dim[1]
+            mainZ = main.dim[2]
+            mainRoof = main.roof[1]
+
+            sectionFullHeight = random.randint(3, mainY + mainRoof )
+
+            #height
+            if(sectionFullHeight > mainY):
+                sectionHeight = mainY
+                roofHeight = sectionFullHeight - mainY
+            else:
+                sectionHeight = random.randint(2, sectionFullHeight - 1 )
+                roofHeight = sectionFullHeight - sectionHeight
+
+            #decide direction
+            mainAlign = 1
+            if(mainX > mainY)
+                mainAlign = 2
+
+            sectionWidth  = random.randint(3,5)
+            # sectionHeight = random.randint(2,mainY)
+            sectionDepth  = random.randint(3,5)
+            # roofHeight = random.randint(1 , 2)
+            roofType   = random.randint(1,3)
+            sectionPos = [3,0,0]
+            self.sections.append( buildingSection([sectionWidth, sectionHeight, sectionDepth], [roofType, roofHeight], sectionPos) )
+            #self.sections.append( buildingSection([1, 1, 1], [2, 1], [0,0,0]) )
+            self.newSectionProb = self.newSectionProb - 1/self.maxSectionCount
 
 
 
