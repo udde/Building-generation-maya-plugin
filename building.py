@@ -4,22 +4,37 @@ import maya.OpenMayaMPx as OpenMayaMPx
 import maya.cmds as cmds
 
 kPluginCmdName = "build"
-class housePart():
+class buildingPart():
     def __init__(self, dimension, rof_spec, position):
         self.pos    = [0, 0, 0]
-        self.dim    = [1, 1, 1]
+        self.dim    = [2, 1, 4]
+
+    def roof(self, i):
+        print "hej"
+        short_side = self.dim[0]
+        cmds.polyCube(w=self.dim[0], h=self.dim[1], d=self.dim[2], n = 'roof' + str(i))
+        cmds.move(0, 1, 0, r=1)
+        if(self.dim[2] < self.dim[0] ):
+            cmds.select('roof' + str(i) + '.vtx[2:3]')
+            cmds.move(0, 0, -0.5 * self.dim[2], r=1)
+            cmds.select('roof' + str(i) + '.vtx[4:5]')
+            cmds.move(0, 0, 0.5 * self.dim[2], r=1)
+        else:
+            cmds.select(['roof' + str(i) + '.vtx[2]', 'roof' + str(i) + '.vtx[4]'])
+            cmds.move(0.5 * self.dim[0], 0, 0, r=1)
+            cmds.select(['roof' + str(i) + '.vtx[3]', 'roof' + str(i) + '.vtx[5]'])
+            cmds.move(-0.5 * self.dim[0], 0, 0, r=1)
+
+
     def build(self):
         i = 0
-        cmds.polyCube(n='box'+str(i))
+        cmds.polyCube(w=self.dim[0], h=self.dim[1], d=self.dim[2], n = 'box'+str(i))
         cmds.move(0,0,0,r=1)
-        cmds.polyCube(n='roof'+str(i))
-        cmds.move(0,1,0,r=1)
-        cmds.select('roof'+str(i)+'.vtx[2:3]')
-        cmds.move(0,-0.5,-0.5,r=1)
-        cmds.select('roof'+str(i)+'.vtx[4:5]')
-        cmds.move(0,-0.5,0.5,r=1)
+        self.roof(i)
+        cmds.select(['roof0', 'box0'])
 
-class house():
+
+class building():
     def __init__(self, lot, lot_pos):
         self.lot = lot
         self.lot_pos = lot_pos
@@ -30,7 +45,7 @@ class house():
         #build the main part of the house
 
         #after some calculations
-        self.parts.append( housePart([1,1,1], 0.5, [0,0,0]) )
+        self.parts.append( buildingPart([1,1,1], 0.5, [0,0,0]) )
 
     def extend(self):
         #extend the house if its posible
@@ -41,7 +56,6 @@ class house():
             part.build()
 
 
-
 # Command
 class scriptedCommand(OpenMayaMPx.MPxCommand):
 
@@ -50,13 +64,10 @@ class scriptedCommand(OpenMayaMPx.MPxCommand):
 
     # Invoked when the command is run.
     def doIt(self,argList):
-        print "johan sylvan"
-        hus = house(0,0)
+        hus = building(0,0)
         hus.generateMainPart()
         # while(extend):
         hus.build()
-
-
 
 
 
