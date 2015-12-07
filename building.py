@@ -9,15 +9,15 @@ kPluginCmdName = "build"
 class buildingSection():
     idx = 0
     def __init__(self, dimension, roofSpec, position):
-        self.pos = [0, 0, 0]
         self.dim = dimension
         self.roof = roofSpec
+        self.pos = position
         self.idx = buildingSection.idx
         buildingSection.idx += 1
 
     def build(self):
         cmds.polyCube(sx=5, sy=5, sz=5, w=self.dim[0], h=self.dim[1], d=self.dim[2], n='box'+str(self.idx))
-        cmds.move(0,self.dim[1]*0.5,0,r=1)
+        cmds.move(self.pos[0],self.pos[1] + self.dim[1]*0.5,self.pos[2],r=1)
         self.buildRoof()
         cmds.select(clear = True)
 
@@ -49,28 +49,41 @@ class building():
         self.lawnX      = 15
         self.lawnZ      = 15
 
-
-
     def generateSection(self):
         #build the main section of the house
 
         #after some calculations
 
         self.sections.append( buildingSection([self.sectionWidth, self.sectionHeight, self.sectionDepth], [self.roofType, self.roofHeight], [0,0,0]) )
-    def lotPlacement(self):
-        cmds.select('box'+str(i))
-        cmds.move( random.randint(-(self.lawnX)/2+self.width,self.lawnX/2-self.width), self.height/2 +0.2, random.randint(-(self.lawnZ)/2+self.depth,self.lawnZ/2-self.depth), 'box', absolute=True )
-        cmds.select('roof'+str(i))
-        cmds.move( random.randint(-(self.lawnX)/2+self.width,self.lawnX/2-self.width), self.height/2 +0.2, random.randint(-(self.lawnZ)/2+self.depth,self.lawnZ/2-self.depth), 'roof', absolute=True )
 
+    def setSectionPosition(self):
+        
+        # set values of where previous section is, in each axis 
+        neighbourLowX = self.sections[0].pos[0] - self.sections[0].dim[0]*0.5
+        neighbourCenterX = self.sections[0].pos[0]
+        neighbourHighX = self.sections[0].pos[0] + self.sections[0].dim[0]*0.5
 
+        neighbourLowY = self.sections[0].pos[1] - self.sections[0].dim[1]*0.5
+        neighbourCenterY = self.sections[0].pos[1]
+        neighbourHighY = self.sections[0].pos[1] + self.sections[0].dim[1]*0.5
+
+        neighbourLowZ = self.sections[0].pos[2] - self.sections[0].dim[2]*0.5
+        neighbourCenterZ = self.sections[0].pos[2]
+        neighbourHighZ = self.sections[0].pos[2] + self.sections[0].dim[2]*0.5
+
+        if self.sectionWidth < self.sectionDepth:
+            
+
+        elif self.sectionWidth > self.sectionDepth:
+
+        
     def extend(self):
         #extend the house if its posible
         print "extend"
         self.generateSubSections()
 
-
     def generateSubSections(self):
+        self.pos = self.setSectionPosition()
         #Create smaller subparts
         print("hej")
         self.newSectionProb = 1
@@ -84,9 +97,6 @@ class building():
                 print("Created subpart")
                 self.sections.append( buildingSection([1, 1, 1], [2, 1], [0,0,0]) )
                 self.newSectionProb = self.newSectionProb - self.maxSectionCount/(self.maxSectionCount*self.maxSectionCount)
-
-
-
 
     def build(self):
         self.generateSection()
