@@ -100,13 +100,11 @@ class building():
 
             #decide direction
             mainAlign = 1
-            if(mainX > mainY)
+            if(mainX > mainZ):
                 mainAlign = 2
 
-            sectionWidth  = random.randint(3,5)
-            # sectionHeight = random.randint(2,mainY)
-            sectionDepth  = random.randint(3,5)
-            # roofHeight = random.randint(1 , 2)
+            sectionWidth  = random.randint(2,5)
+            sectionDepth  = random.randint(2,mainX*mainY*mainZ / (sectionWidth * sectionHeight))
             roofType   = random.randint(1,3)
             sectionPos = [3,0,0]
             self.sections.append( buildingSection([sectionWidth, sectionHeight, sectionDepth], [roofType, roofHeight], sectionPos) )
