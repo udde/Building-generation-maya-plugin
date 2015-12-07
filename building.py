@@ -6,52 +6,57 @@ import random
 
 kPluginCmdName = "build"
 
-class buildingPart():
+class buildingSection():
+    idx = 0
     def __init__(self, dimension, roofSpec, position):
         self.pos = [0, 0, 0]
         self.dim = dimension
         self.roof = roofSpec
+        self.idx = buildingSection.idx
+        buildingSection.idx += 1
 
     def build(self):
-        i = 0
-        cmds.polyCube(sx=5, sy=5, sz=5, w=self.dim[0], h=self.dim[1], d=self.dim[2], n='box'+str(i))
+        cmds.polyCube(sx=5, sy=5, sz=5, w=self.dim[0], h=self.dim[1], d=self.dim[2], n='box'+str(self.idx))
         cmds.move(0,self.dim[1]*0.5,0,r=1)
-        self.buildRoof(i)
+        self.buildRoof()
+        cmds.select(clear = True)
 
-    def buildRoof(self, i):
-        cmds.polyCube(w=self.dim[0], h=self.roof[1], d=self.dim[2], n = 'roof' + str(i))
+    def buildRoof(self):
+        cmds.polyCube(w=self.dim[0], h=self.roof[1], d=self.dim[2], n = 'roof' + str(self.idx))
         cmds.move(0, self.dim[1] + 0.5*self.roof[1], 0, r=1)
         if(self.dim[2] < self.dim[0] ):
-            cmds.select('roof' + str(i) + '.vtx[2:3]')
+            cmds.select('roof' + str(self.idx) + '.vtx[2:3]')
             cmds.move(0, 0, -0.5 * self.dim[2], r=1)
-            cmds.select('roof' + str(i) + '.vtx[4:5]')
+            cmds.select('roof' + str(self.idx) + '.vtx[4:5]')
             cmds.move(0, 0, 0.5 * self.dim[2], r=1)
         else:
-            cmds.select(['roof' + str(i) + '.vtx[2]', 'roof' + str(i) + '.vtx[4]'])
+            cmds.select(['roof' + str(self.idx) + '.vtx[2]', 'roof' + str(self.idx) + '.vtx[4]'])
             cmds.move(0.5 * self.dim[0], 0, 0, r=1)
-            cmds.select(['roof' + str(i) + '.vtx[3]', 'roof' + str(i) + '.vtx[5]'])
+            cmds.select(['roof' + str(self.idx) + '.vtx[3]', 'roof' + str(self.idx) + '.vtx[5]'])
             cmds.move(-0.5 * self.dim[0], 0, 0, r=1)
 
 class building():
     def __init__(self, lot, lot_pos):
-        self.lot = lot
-        self.lot_pos = lot_pos
-        #store the different house parts here
-        self.parts = []
-        self.partHeight = random.randint(3,8)
-        self.partWidth = random.randint(3,8)
-        self.partDepth = random.randint(3,8)
-        self.roofHeight = random.randint(3,4)
-        self.roofType = random.randint(1,3)
-        self.lawnX = 15
-        self.lawnZ = 15
+        self.lot        = lot
+        self.lot_pos    = lot_pos
+        #store the different house sections here
+        self.sections      = []
+        self.sectionWidth  = random.randint(3,5)
+        self.sectionHeight = random.randint(3,3)
+        self.sectionDepth  = random.randint(3,5)
+        self.roofHeight = random.randint(1,3)
+        self.roofType   = random.randint(1,3)
+        self.lawnX      = 15
+        self.lawnZ      = 15
 
-    def generateMainPart(self):
-        #build the main part of the house
+
+
+    def generateSection(self):
+        #build the main section of the house
 
         #after some calculations
 
-        self.parts.append( buildingPart([self.partWidth, self.partHeight, self.partDepth], [self.roofType, self.roofHeight], [0,0,0]) )
+        self.sections.append( buildingSection([self.sectionWidth, self.sectionHeight, self.sectionDepth], [self.roofType, self.roofHeight], [0,0,0]) )
     def lotPlacement(self):
         cmds.select('box'+str(i))
         cmds.move( random.randint(-(self.lawnX)/2+self.width,self.lawnX/2-self.width), self.height/2 +0.2, random.randint(-(self.lawnZ)/2+self.depth,self.lawnZ/2-self.depth), 'box', absolute=True )
@@ -61,11 +66,33 @@ class building():
 
     def extend(self):
         #extend the house if its posible
-        return False
+        print "extend"
+        self.generateSubSections()
+
+
+    def generateSubSections(self):
+        #Create smaller subparts
+        print("hej")
+        self.newSectionProb = 1
+        self.maxSectionCount = 10
+
+        for a in range(0,self.maxSectionCount):
+            #print("johanss")
+            self.randomInt = random.randint(0,100)
+            self.createSection = self.newSectionProb * self.randomInt/40
+            if self.createSection >= 0.5:
+                print("Created subpart")
+                self.sections.append( buildingSection([1, 1, 1], [2, 1], [0,0,0]) )
+                self.newSectionProb = self.newSectionProb - self.maxSectionCount/(self.maxSectionCount*self.maxSectionCount)
+
+
+
 
     def build(self):
-        for part in self.parts:
-            part.build()
+        self.generateSection()
+        self.extend()
+        for section in self.sections:
+            section.build()
 
 
 # Command
@@ -77,11 +104,7 @@ class scriptedCommand(OpenMayaMPx.MPxCommand):
     # Invoked when the command is run.
     def doIt(self,argList):
         hus = building(0,0)
-        hus.generateMainPart()
-        # while(extend):
         hus.build()
-
-
 
 # Creator
 def cmdCreator():
