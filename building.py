@@ -14,10 +14,10 @@ class housePart():
 
     def build(self):
         i = 0
-        cmds.polyCube(sx=5, sy=5, sz=5, width=self.dim[0], height=self.dim[1], depth=self.dim[2], n='box'+str(i))
-        cmds.move(0,self.dim[1]/2,0,r=1)
-        cmds.polyCube(width=self.dim[0], height=self.roof[1], depth=self.dim[2], n='roof'+str(i))
-        cmds.move(0,self.dim[1] + self.roof[1]/2,0,r=1)
+        cmds.polyCube(sx=5, sy=5, sz=5, width=self.dim[0], depth=self.dim[1], height=self.dim[2], n='box'+str(i))
+        cmds.move(0,self.dim[2]*0.5,0,r=1)
+        cmds.polyCube(width=self.dim[0], depth=self.dim[1], height=self.roof[1], n='roof'+str(i))
+        cmds.move(0,self.dim[2] + self.roof[1]*0.5,0,r=1)
         cmds.select('roof'+str(i)+'.vtx[2:3]')
         cmds.move(0,-0.5,-0.5,r=1)
         cmds.select('roof'+str(i)+'.vtx[4:5]')
@@ -43,8 +43,12 @@ class house():
         #after some calculations
         self.parts.append( housePart([self.houseWidth, self.houseDepth, self.houseHeight], [self.roofType, self.roofHeight], [0,0,0]) )
 
-    #def lotPlacement(self):
-     #   cmds.move( random.randint(-(self.lawnX)/2+self.width,self.lawnX/2-self.width), self.height/2 +0.2, random.randint(-(self.lawnZ)/2+self.depth,self.lawnZ/2-self.depth), 'cube1', absolute=True )
+    def lotPlacement(self):
+        cmds.select('box'+str(i))
+        cmds.move( random.randint(-(self.lawnX)/2+self.width,self.lawnX/2-self.width), self.height/2 +0.2, random.randint(-(self.lawnZ)/2+self.depth,self.lawnZ/2-self.depth), 'box', absolute=True )
+        cmds.select('roof'+str(i))
+        cmds.move( random.randint(-(self.lawnX)/2+self.width,self.lawnX/2-self.width), self.height/2 +0.2, random.randint(-(self.lawnZ)/2+self.depth,self.lawnZ/2-self.depth), 'roof', absolute=True )
+
 
     def extend(self):
         #extend the house if its posible
