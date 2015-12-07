@@ -38,9 +38,9 @@ class building():
         self.lot_pos = lot_pos
         #store the different house parts here
         self.parts = []
-        self.houseHeight = random.randint(3,8)
-        self.houseWidth = random.randint(3,8)
-        self.houseDepth = random.randint(3,8)
+        self.partHeight = random.randint(3,8)
+        self.partWidth = random.randint(3,8)
+        self.partDepth = random.randint(3,8)
         self.roofHeight = random.randint(3,4)
         self.roofType = random.randint(1,3)
         self.lawnX = 15
@@ -51,8 +51,7 @@ class building():
 
         #after some calculations
 
-        self.parts.append( buildingPart([self.houseWidth, self.houseHeight, self.houseDepth], [self.roofType, self.roofHeight], [0,0,0]) )
-
+        self.parts.append( buildingPart([self.partWidth, self.partHeight, self.partDepth], [self.roofType, self.roofHeight], [0,0,0]) )
     def lotPlacement(self):
         cmds.select('box'+str(i))
         cmds.move( random.randint(-(self.lawnX)/2+self.width,self.lawnX/2-self.width), self.height/2 +0.2, random.randint(-(self.lawnZ)/2+self.depth,self.lawnZ/2-self.depth), 'box', absolute=True )
