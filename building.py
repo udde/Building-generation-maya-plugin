@@ -71,16 +71,15 @@ class building():
         neighbourCenterZ = self.sections[0].pos[2]
         neighbourHighZ = self.sections[0].pos[2] + self.sections[0].dim[2]*0.5
 
-        if self.sectionWidth < self.sectionDepth:
-            
+        #if self.sectionWidth < self.sectionDepth:
 
-        elif self.sectionWidth > self.sectionDepth:
+        #elif self.sectionWidth > self.sectionDepth:
 
         
     def extend(self):
         #extend the house if its posible
         print "extend"
-        self.generateSubSections()
+        #self.generateSubSections()
 
     def generateSubSections(self):
         self.pos = self.setSectionPosition()
