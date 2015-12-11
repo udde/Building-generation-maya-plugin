@@ -49,7 +49,6 @@ class building():
         self.lawnX      = 15
         self.lawnZ      = 15
 
-
     def generateSection(self):
         #build the main section of the house
 
@@ -62,12 +61,10 @@ class building():
         cmds.select('roof'+str(i))
         cmds.move( random.randint(-(self.lawnX)/2+self.width,self.lawnX/2-self.width), self.height/2 +0.2, random.randint(-(self.lawnZ)/2+self.depth,self.lawnZ/2-self.depth), 'roof', absolute=True )
 
-
     def extend(self):
         #extend the house if its posible
         print "extend"
         self.generateSubSections()
-
 
     def generateSubSections(self):
         #Create smaller subparts
@@ -88,6 +85,7 @@ class building():
             mainZ = main.dim[2]
             mainRoof = main.roof[1]
 
+            print "a"
             sectionFullHeight = random.randint(3, mainY + mainRoof )
 
             #height
@@ -98,20 +96,51 @@ class building():
                 sectionHeight = random.randint(2, sectionFullHeight - 1 )
                 roofHeight = sectionFullHeight - sectionHeight
 
+            sectionWidth  = random.randint(2,5)
+            print "b"
+            mainVolume = mainX*mainY*mainZ / (sectionWidth * sectionHeight)
+            if(mainVolume < 2):
+                mainVolume = 2
+            sectionDepth  = random.randint(2, mainVolume)
+            roofType   = random.randint(1,3)
+
             #decide direction
             mainAlign = 1
             if(mainX > mainZ):
                 mainAlign = 2
 
-            sectionWidth  = random.randint(2,5)
-            sectionDepth  = random.randint(2,mainX*mainY*mainZ / (sectionWidth * sectionHeight))
-            roofType   = random.randint(1,3)
-            sectionPos = [3,0,0]
+            newAlign = 1
+            if(sectionWidth > sectionDepth):
+                newAlign = 2
+
+            sectionPos = [2,0,0]
+            translateX = 0
+            directionX = 0
+            if(mainAlign == 1):
+                if(newAlign == 1):
+                    #side to side
+                    if(sectionHeight < mainY):
+                        #if 
+                        translateX = random.randint(0, mainX/2)
+                    else:
+                        #
+                        translateX = random.randint(mainX/2, (mainX+sectionWidth)/2)
+                if(newAlign == 2):
+                    if(sectionFullHeight < mainY):
+                        print "1"
+                        translateX = random.randint(0, mainX/2 + sectionWidth/2)
+                    else:
+                        print "2"
+                        translateX = random.randint(0, sectionWidth/2)
+
+            else:
+                print "3"
+            directionX = ((random.randint(0,1))-0.5)*2
+            sectionPos = [directionX * translateX ,0,0]
+
             self.sections.append( buildingSection([sectionWidth, sectionHeight, sectionDepth], [roofType, roofHeight], sectionPos) )
             #self.sections.append( buildingSection([1, 1, 1], [2, 1], [0,0,0]) )
             self.newSectionProb = self.newSectionProb - 1/self.maxSectionCount
-
-
 
 
     def build(self):
