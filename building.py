@@ -55,12 +55,32 @@ class building():
         #after some calculations
 
         self.sections.append( buildingSection([self.sectionWidth, self.sectionHeight, self.sectionDepth], [self.roofType, self.roofHeight], [0,0,0]) )
+
     def lotPlacement(self):
         cmds.select('box'+str(i))
         cmds.move( random.randint(-(self.lawnX)/2+self.width,self.lawnX/2-self.width), self.height/2 +0.2, random.randint(-(self.lawnZ)/2+self.depth,self.lawnZ/2-self.depth), 'box', absolute=True )
         cmds.select('roof'+str(i))
         cmds.move( random.randint(-(self.lawnX)/2+self.width,self.lawnX/2-self.width), self.height/2 +0.2, random.randint(-(self.lawnZ)/2+self.depth,self.lawnZ/2-self.depth), 'roof', absolute=True )
 
+    def setSectionPosition(self):
+
+        # set values of where previous section is, in each axis
+        neighbourLowX = self.sections[0].pos[0] - self.sections[0].dim[0]*0.5
+        neighbourCenterX = self.sections[0].pos[0]
+        neighbourHighX = self.sections[0].pos[0] + self.sections[0].dim[0]*0.5
+
+        neighbourLowY = self.sections[0].pos[1] - self.sections[0].dim[1]*0.5
+        neighbourCenterY = self.sections[0].pos[1]
+        neighbourHighY = self.sections[0].pos[1] + self.sections[0].dim[1]*0.5
+
+        neighbourLowZ = self.sections[0].pos[2] - self.sections[0].dim[2]*0.5
+        neighbourCenterZ = self.sections[0].pos[2]
+        neighbourHighZ = self.sections[0].pos[2] + self.sections[0].dim[2]*0.5
+
+        #if self.sectionWidth < self.sectionDepth:
+
+        #elif self.sectionWidth > self.sectionDepth:
+        
     def extend(self):
         #extend the house if its posible
         print "extend"
