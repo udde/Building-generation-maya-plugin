@@ -1,8 +1,8 @@
+#(import maya.cmds as c -> c.loadPlugin....)
 #load plugin:
 #maya.cmds.loadPlugin("/path/to/thisifle.py")
 #run plugin:
 #maya.cmds.build()
-#(import maya.cmds as c -> c.loadPlugin....)
 
 import sys
 import maya.OpenMaya as OpenMaya
