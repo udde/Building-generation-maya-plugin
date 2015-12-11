@@ -120,10 +120,10 @@ class building():
                 if(newAlign == 1):
                     #side to side
                     if(sectionHeight < mainY):
-                        #if 
+                        #if the section is low: move maximum the halv main width to avoid roof bug
                         translateX = random.randint(0, mainX/2)
                     else:
-                        #
+                        #if its full height
                         translateX = random.randint(mainX/2, (mainX+sectionWidth)/2)
                 if(newAlign == 2):
                     if(sectionFullHeight < mainY):
