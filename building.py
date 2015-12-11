@@ -1,3 +1,9 @@
+#load plugin:
+#maya.cmds.loadPlugin("/path/to/thisifle.py")
+#run plugin:
+#maya.cmds.build()
+#(import maya.cmds as c -> c.loadPlugin....)
+
 import sys
 import maya.OpenMaya as OpenMaya
 import maya.OpenMayaMPx as OpenMayaMPx
@@ -80,7 +86,7 @@ class building():
         #if self.sectionWidth < self.sectionDepth:
 
         #elif self.sectionWidth > self.sectionDepth:
-        
+
     def extend(self):
         #extend the house if its posible
         print "extend"
