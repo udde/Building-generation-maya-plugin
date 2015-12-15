@@ -80,24 +80,80 @@ class building():
         cmds.select('roof'+str(i))
         cmds.move( random.randint(-(self.lawnX)/2+self.width,self.lawnX/2-self.width), self.height/2 +0.2, random.randint(-(self.lawnZ)/2+self.depth,self.lawnZ/2-self.depth), 'roof', absolute=True )
 
-    def setSectionPosition(self):
+    def setPos(self, newSectionWidth, newSectionFullHeight, newSectionDepth):
+        while True:
+            #Section is randomly selected where new section will be placed from
+            baseSection = random.randint(0,len(self.sections)-1)
+            #get variables of base section
+            sectionCenter = self.sections[baseSection].pos
+            sectionDim = self.sections[baseSection].dim
+            #save corners of the base section
+            corner00 = [sectionCenter[0] - sectionDim[0]*0.5, sectionCenter[1], sectionCenter[2] - sectionDim[2]*0.5 ]
+            corner10 = [sectionCenter[0] + sectionDim[0]*0.5, sectionCenter[1], sectionCenter[2] - sectionDim[2]*0.5 ]
+            corner01 = [sectionCenter[0] - sectionDim[0]*0.5, sectionCenter[1], sectionCenter[2] + sectionDim[2]*0.5 ]
+            corner11 = [sectionCenter[0] + sectionDim[0]*0.5, sectionCenter[1], sectionCenter[2] + sectionDim[2]*0.5 ]
+            #save corners in a list 
+            sectionCorners = [corner00, corner10, corner01, corner11]
 
-        # set values of where previous section is, in each axis
-        neighbourLowX = self.sections[0].pos[0] - self.sections[0].dim[0]*0.5
-        neighbourCenterX = self.sections[0].pos[0]
-        neighbourHighX = self.sections[0].pos[0] + self.sections[0].dim[0]*0.5
+            #give new section the position of one of the corners of the base section
+            cornerIndex = random.randint(0,len(sectionCorners)-1)
+            newSectionPos = sectionCorners[cornerIndex]
+            #generate direction x or z in which new section will be placed along (width or depth). iDir = intervallDirection
+            iDir = random.randint(0,1)*2
 
-        neighbourLowY = self.sections[0].pos[1] - self.sections[0].dim[1]*0.5
-        neighbourCenterY = self.sections[0].pos[1]
-        neighbourHighY = self.sections[0].pos[1] + self.sections[0].dim[1]*0.5
+            neighbourCorner = sectionCorners[0]
+            #Find neighbouring corner in the direction iDir
+            for i in range(0, len(sectionCorners)-1):
+                #if the new point has the coordinate in direction iDir in common with any corner in the list, we have found a neighbour 
+                #We ensure that the neighbour of the new point isnt itself
+                if i!=cornerIndex and sectionCorners[i][iDir] == newSectionPos[iDir]:
+                    neighbourCorner = sectionCorners[i]
 
-        neighbourLowZ = self.sections[0].pos[2] - self.sections[0].dim[2]*0.5
-        neighbourCenterZ = self.sections[0].pos[2]
-        neighbourHighZ = self.sections[0].pos[2] + self.sections[0].dim[2]*0.5
+            #initiate limits
+            lowerLimit = neighbourCorner[iDir]
+            upperLimit = newSectionPos[iDir]
+            breaky = False
 
-        #if self.sectionWidth < self.sectionDepth:
+            #Calculate lower and upper limit in which you will randomize new position for the new section
+            for j in range(0,len(self.sections)-1):
+                if ((self.sections[j].pos[0] - (self.sections[j].dim[0]*0.5)) < newSectionPos[0] < (self.sections[j].pos[0] + self.sections[j].dim[0]*0.5)) and ((self.sections[j].pos[2] - (self.sections[j].dim[2]*0.5)) < newSectionPos[2] < (self.sections[j].pos[2] + self.sections[j].dim[2]*0.5)):
+                    breaky = True
 
-        #elif self.sectionWidth > self.sectionDepth:
+                #Check direction in which new building will be placed
+                if (iDir == 0):
+                    #Check neigbourCorners position in relation
+                    if (neighbourCorner[iDir] < newSectionPos[iDir]):
+                        lowerLimit = neighbourCorner[iDir]
+                        upperLimit = newSectionPos[iDir]
+                        #Ajust limit if another section is in the way
+                        if (self.sections[j].pos[2] - (self.sections[j].dim[2]*0.5) < newSectionPos[2] < self.sections[j].pos[2] + self.sections[j].dim[2]*0.5):
+                            lowerLimit = self.sections[j].pos[iDir] + (newSectionWidth*0.5+1)
+
+                    else:
+                        lowerLimit = newSectionPos[iDir]
+                        upperLimit = neighbourCorner[iDir]
+                        if (self.sections[j].pos[2] - (self.sections[j].dim[2]*0.5) < newSectionPos[2] < self.sections[j].pos[2] + self.sections[j].dim[2]*0.5):
+                            upperLimit = self.sections[j].pos[iDir] - (newSectionWidth*0.5-1)
+
+                #Same theory as for iDir == 0
+                if iDir == 2:
+                    if neighbourCorner[iDir] < newSectionPos[iDir]:
+                        lowerLimit = neighbourCorner[iDir]
+                        upperLimit = newSectionPos[iDir]
+                        if (self.sections[j].pos[0] - (self.sections[j].dim[0]*0.5) < newSectionPos[0] < self.sections[j].pos[0] + self.sections[j].dim[0]*0.5):
+                            lowerLimit = self.sections[j].pos[iDir] + (newSectionDepth*0.5+1)
+
+                    else:
+                        lowerLimit = newSectionPos[iDir]
+                        upperLimit = neighbourCorner[iDir]
+                        if self.sections[j].pos[0] - (self.sections[j].dim[0]*0.5) < newSectionPos[0] < self.sections[j].pos[0] + self.sections[j].dim[0]*0.5:
+                            upperLimit = self.sections[j].pos[iDir] - (newSectionDepth*0.5-1)
+
+            if (((newSectionWidth*0.5) < (upperLimit - lowerLimit)) or breaky == True):
+                break
+
+        newSectionPos[iDir] = random.uniform(lowerLimit,upperLimit)
+        return newSectionPos
 
     def extend(self):
         #extend the house if its posible
@@ -148,7 +204,8 @@ class building():
                 if(sectionWidth > sectionDepth):
                     newAlign = 2
 
-                sectionPos = [0,0,0]
+                sectionPos = self.setPos(sectionWidth, sectionFullHeight, sectionDepth)
+                #sectionPos = [0,0,0]
                 translateX = 0
                 directionX = 0
                 translateZ = 0
@@ -210,14 +267,14 @@ class building():
                         # translateZ = random.randint(0, mainZ/2 + sectionDepth/4)
 
                 #Stay within the lot
-                maxXtranslation = self.lawnX/2 - sectionWidth/2
-                translateX = min(translateX, maxXtranslation)
-                maxZtranslation = self.lawnZ/2 - sectionDepth/2
-                translateZ = min(translateZ, maxZtranslation)
+                #maxXtranslation = self.lawnX/2 - sectionWidth/2
+                #translateX = min(translateX, maxXtranslation)
+                #maxZtranslation = self.lawnZ/2 - sectionDepth/2
+                #translateZ = min(translateZ, maxZtranslation)
 
                 directionX = ((random.randint(0,1))-0.5)*2
                 directionZ = ((random.randint(0,1))-0.5)*2
-                sectionPos = [self.lotPos[0] + directionX * translateX ,self.lotPos[1] , self.lotPos[2] + directionZ * translateZ]
+                #sectionPos = [self.lotPos[0] + directionX * translateX ,self.lotPos[1] , self.lotPos[2] + directionZ * translateZ]
 
                 self.sections.append( buildingSection([sectionWidth, sectionHeight, sectionDepth], [roofType, roofHeight], sectionPos) )
                 #self.sections.append( buildingSection([1, 1, 1], [2, 1], [0,0,0]) )
