@@ -30,25 +30,24 @@ class buildingSection():
 
     def buildRoof(self):
         cmds.select(clear = True)
-        if(self.roofHeight < 2):
+        if(self.roofType == 1):
             cmds.polyPlane(w=self.dim[0],h=self.dim[2], sx=1, sy=1, n = 'roof' + str(self.idx))
             cmds.move(self.pos[0], self.dim[1] + 0.0*self.roofHeight, self.pos[2], r=1)
             cmds.select('roof'+str(self.idx)+'.f[1]')
             cmds.polyExtrudeFacet(s=[0.9,1.0,0.9], t=[0.0, self.roofHeight, 0.0])
         else:
-            if(self.roofType == 1 or self.roofType == 2):
-                cmds.polyCube(w=self.dim[0], h=self.roofHeight, d=self.dim[2], n = 'roof' + str(self.idx))
-                cmds.move(self.pos[0], self.dim[1] + 0.5*self.roofHeight, self.pos[2], r=1)
-                if(self.dim[2] < self.dim[0] ):
-                    cmds.select('roof' + str(self.idx) + '.vtx[2:3]')
-                    cmds.move(0, 0, -0.5 * self.dim[2], r=1)
-                    cmds.select('roof' + str(self.idx) + '.vtx[4:5]')
-                    cmds.move(0, 0, 0.5 * self.dim[2], r=1)
-                else:
-                    cmds.select(['roof' + str(self.idx) + '.vtx[2]', 'roof' + str(self.idx) + '.vtx[4]'])
-                    cmds.move(0.5 * self.dim[0], 0, 0, r=1)
-                    cmds.select(['roof' + str(self.idx) + '.vtx[3]', 'roof' + str(self.idx) + '.vtx[5]'])
-                    cmds.move(-0.5 * self.dim[0], 0, 0, r=1)
+            cmds.polyCube(w=self.dim[0], h=self.roofHeight, d=self.dim[2], n = 'roof' + str(self.idx))
+            cmds.move(self.pos[0], self.dim[1] + 0.5*self.roofHeight, self.pos[2], r=1)
+            if(self.dim[2] < self.dim[0] ):
+                cmds.select('roof' + str(self.idx) + '.vtx[2:3]')
+                cmds.move(0, 0, -0.5 * self.dim[2], r=1)
+                cmds.select('roof' + str(self.idx) + '.vtx[4:5]')
+                cmds.move(0, 0, 0.5 * self.dim[2], r=1)
+            else:
+                cmds.select(['roof' + str(self.idx) + '.vtx[2]', 'roof' + str(self.idx) + '.vtx[4]'])
+                cmds.move(0.5 * self.dim[0], 0, 0, r=1)
+                cmds.select(['roof' + str(self.idx) + '.vtx[3]', 'roof' + str(self.idx) + '.vtx[5]'])
+                cmds.move(-0.5 * self.dim[0], 0, 0, r=1)
 
 
 
@@ -65,13 +64,11 @@ class building():
         self.sectionHeight = random.randint(4,8)
         self.sectionDepth  = random.randint(self.lawnZ/2 ,self.lawnZ)
         self.roofHeight = random.randint(2,5)
-        self.roofType   = random.randint(1,2)
+        self.roofType   = random.randint(2,2)
 
     def generateSection(self):
         #build the main section of the house
-
         #after some calculations
-
         self.sections.append( buildingSection([self.sectionWidth, self.sectionHeight, self.sectionDepth], [self.roofType, self.roofHeight], [self.lotPos[0],self.lotPos[1],self.lotPos[2]]) )
 
     def lotPlacement(self):
@@ -120,15 +117,21 @@ class building():
                 mainZ = main.dim[2]
                 mainRoof = main.roofHeight
 
-                sectionFullHeight = random.randint(3, int(mainY + mainRoof))
-
                 #height
-                if(sectionFullHeight > mainY):
-                    sectionHeight = mainY
-                    roofHeight = sectionFullHeight - mainY
+                roofType = random.randint(1,2)
+
+                sectionFullHeight = random.randint(4, int(mainY + mainRoof))
+                if(roofType == 1):
+                    roofHeight = 1
+                    sectionHeight = random.randint(3, int(mainY) - roofHeight )
+
                 else:
-                    sectionHeight = random.randint(2, int(sectionFullHeight - 1 ))
-                    roofHeight = sectionFullHeight - sectionHeight
+                    if(sectionFullHeight > mainY):
+                        sectionHeight = mainY
+                        roofHeight = sectionFullHeight - mainY
+                    else:
+                        sectionHeight = random.randint(2, int(sectionFullHeight - 1 ))
+                        roofHeight = sectionFullHeight - sectionHeight
 
                 sectionWidth  = random.randint(8,int(self.lawnX-a*2))
                 mainVolume = mainX*mainY*mainZ / (sectionWidth * sectionHeight)
@@ -137,7 +140,6 @@ class building():
                     mainVolume = 8
                 sectionDepth = random.randint(8, int(mainVolume))
                 sectionDepth = min(sectionDepth, int(self.lawnZ-a*2))
-                roofType = random.randint(1,2)
 
                 #decide direction
                 mainAlign = 1
@@ -153,6 +155,7 @@ class building():
                 directionX = 0
                 translateZ = 0
                 directionZ = 0
+
                 if(mainAlign == 1):
                     # print "A"
                     #side to side
@@ -177,7 +180,8 @@ class building():
                             # print "2"
                         else:
                             translateX = random.randint(0, int(sectionWidth/2))
-                        translateZ = random.randint(0, int(mainZ/2))
+                            if(sectionWidth < mainX): translateX = int(sectionWidth/2)
+                        translateZ = random.randint(0, int(mainZ/2) - int(sectionDepth/2))
                 #mainalign 2
                     # print "B"
                 else:
@@ -194,7 +198,8 @@ class building():
                             # print "2"
                             #if its full height: move maximum half + half length, roof bug not in play
                             translateZ = random.randint(0, int(sectionDepth/2))
-                        translateX = random.randint(0, int(mainX/2))
+                            if(sectionDepth < mainZ): translateZ = int(sectionDepth/2)
+                        translateX = random.randint(0, int(mainX/2)-int(sectionWidth/2))
 
                     #side to side
                     if(newAlign == 2):
@@ -239,10 +244,10 @@ class scriptedCommand(OpenMayaMPx.MPxCommand):
 
     # Invoked when the command is run.
     def doIt(self,argList):
-        print "Trying to build a house in the selected allotment...."
+        #print "Trying to build a house..."
         selected = cmds.ls(orderedSelection=True)
-        if(len(selected) > 1):
-            print "Illegal selection of allotment! Building aborted!"
+        if(len(selected) != 1):
+            house = building([20,20],[0,0,0])
         else:
             print "Selected %s" %(selected[0])
             tmp = selected[0]
@@ -262,7 +267,7 @@ class scriptedCommand(OpenMayaMPx.MPxCommand):
             # print "Calculated %d x %d lot at [ %d, %d ]." %(width, depth, offsetX, offsetY )
 
             house = building([width-2,depth-2],[offsetX,offsetY,offsetZ])
-            house.build()
+        house.build()
 
 # Creator
 def cmdCreator():
