@@ -1,6 +1,0 @@
-#tänkta regler
-#sida mot sida: om sub är lägre. minst halva sub bredd in i storas vägg
-#               om sub är högre eller lika. godtyckligt långt in i storas vägg
-#               godtyckligt långt längst med
-#omvänd sida: om sub-takets högsta topp < stora boxens övre kant. valfri längd in [0, sub-storlek]
-#               annars, halva stora takets bredd in i storas vägg
