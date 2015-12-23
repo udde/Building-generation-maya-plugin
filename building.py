@@ -12,6 +12,10 @@ import random
 
 kPluginCmdName = "build"
 
+#placing subparts...
+mode = "random"
+#mode = "calculated"
+
 class buildingSection():
     idx = 0
     def __init__(self, dimension, roofSpec, position):
@@ -207,7 +211,8 @@ class building():
                     newAlign = 2
 
                 sectionPos = self.setPos(sectionWidth, sectionFullHeight, sectionDepth)
-                #sectionPos = [0,0,0]
+                if(mode == "random"):
+                    sectionPos = [0,0,0]
                 translateX = 0
                 directionX = 0
                 translateZ = 0
@@ -279,7 +284,8 @@ class building():
 
                 directionX = ((random.randint(0,1))-0.5)*2
                 directionZ = ((random.randint(0,1))-0.5)*2
-                #sectionPos = [self.lotPos[0] + directionX * translateX ,self.lotPos[1] , self.lotPos[2] + directionZ * translateZ]
+                if(mode == "random"):
+                    sectionPos = [self.lotPos[0] + directionX * translateX ,self.lotPos[1] , self.lotPos[2] + directionZ * translateZ]
 
                 self.sections.append( buildingSection([sectionWidth, sectionHeight, sectionDepth], [roofType, roofHeight], sectionPos) )
                 #self.sections.append( buildingSection([1, 1, 1], [2, 1], [0,0,0]) )
